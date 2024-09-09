@@ -1,3 +1,4 @@
+#youtube_downloader.py
 from pytube import YouTube
 from pytube.cli import on_progress
 import os
@@ -51,6 +52,3 @@ def main():
         download_video(url, resolution, download_path)
     else:
         print("Exiting without download.")
-
-if __name__ == "__main__":
-    main()

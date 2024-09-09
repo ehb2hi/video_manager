@@ -1,3 +1,5 @@
+#video_spliter.py
+
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from moviepy.editor import VideoFileClip
 import os
@@ -50,6 +52,3 @@ def main():
             print(f"Video chapter '{title.strip()}' has been split and saved to {output_path}")
         except OSError as e:
             print(f"An error occurred: {e}")
-
-if __name__ == "__main__":
-    main()
