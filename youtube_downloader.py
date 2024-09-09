@@ -1,54 +1,79 @@
-#youtube_downloader.py
-from pytube import YouTube
-from pytube.cli import on_progress
 import os
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton,
+                             QProgressBar, QFileDialog, QComboBox)
+from PyQt5.QtCore import Qt
+import yt_dlp
+import re
 
-def get_video_info(url):
-    yt = YouTube(url)
-    print(f"Title: {yt.title}")
-    print(f"Author: {yt.author}")
-    print(f"Length: {yt.length} seconds")
-    print(f"Views: {yt.views}")
-    print(f"Rating: {yt.rating}")
-    
-    description = yt.description if yt.description else "No description available"
-    print(f"Description: {description[:200]}...")
+class YouTubeDownloaderWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
 
-    print(f"Published Date: {yt.publish_date}")
-    print("Available Streams:")
-    for stream in yt.streams.filter(progressive=True):
-        print(f"Resolution: {stream.resolution}, Size: {round(stream.filesize / (1024 * 1024), 2)} MB")
+    def initUI(self):
+        self.setWindowTitle("YouTube Downloader")
 
-    if yt.captions:
-        print("Available Captions:")
-        for caption in yt.captions:
-            print(f"Language: {caption.code}")
+        layout = QVBoxLayout()
 
-def download_video(url, resolution, download_path):
-    yt = YouTube(url, on_progress_callback=on_progress)
-    stream = yt.streams.filter(res=resolution, progressive=True).first()
-    if stream:
-        print(f"Downloading {yt.title} at {resolution} to {download_path}...")
-        stream.download(output_path=download_path)
-        print("Download complete!")
-    else:
-        print("The requested resolution is not available.")
+        # URL input
+        self.url_label = QLabel('YouTube URL:')
+        self.url_input = QLineEdit(self)
+        layout.addWidget(self.url_label)
+        layout.addWidget(self.url_input)
 
-def main():
-    url = input("Enter the YouTube video URL: ")
-    get_video_info(url)
+        # Resolution selection
+        self.resolution_label = QLabel('Select resolution:')
+        self.resolution_combo = QComboBox(self)
+        self.resolution_combo.addItems(['720', '1080', '480'])
+        layout.addWidget(self.resolution_label)
+        layout.addWidget(self.resolution_combo)
 
-    choice = input("Do you want to download the video in a specific resolution? (yes/no): ").strip().lower()
-    if choice == 'yes':
-        resolution = input("Enter the resolution (e.g., 720p): ").strip()
-        download_path = input("Enter the download location (leave empty for default ./Download): ").strip()
-        
-        if not download_path:
-            download_path = './Download'
-            
-        if not os.path.exists(download_path):
-            os.makedirs(download_path)
-            
-        download_video(url, resolution, download_path)
-    else:
-        print("Exiting without download.")
+        # Destination folder
+        self.path_button = QPushButton('Select Download Path', self)
+        self.path_button.clicked.connect(self.select_path)
+        layout.addWidget(self.path_button)
+
+        # Progress Bar
+        self.progress = QProgressBar(self)
+        self.progress.setValue(0)
+        layout.addWidget(self.progress)
+
+        # Download button
+        self.download_button = QPushButton('Download', self)
+        self.download_button.clicked.connect(self.start_download)
+        layout.addWidget(self.download_button)
+
+        self.setLayout(layout)
+
+    def select_path(self):
+        self.download_path = QFileDialog.getExistingDirectory(self, 'Select Directory')
+        if self.download_path:
+            print(f"Selected path: {self.download_path}")
+
+    def start_download(self):
+        url = self.url_input.text()
+        resolution = self.resolution_combo.currentText()
+
+        if url and self.download_path:
+            self.download_video(url, resolution)
+
+    def download_video(self, url, resolution):
+        ydl_opts = {
+            'format': f'bestvideo[height<={resolution}]+bestaudio/best',
+            'outtmpl': f'{self.download_path}/%(title)s.%(ext)s',
+            'progress_hooks': [self.progress_hook]
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+    def progress_hook(self, d):
+        if d['status'] == 'downloading':
+            # Extract percentage by removing non-numeric and non-decimal characters
+            percentage_str = re.sub(r'[^\d.]', '', d['_percent_str'])
+            try:
+                progress = int(float(percentage_str))
+                self.progress.setValue(progress)
+            except ValueError:
+                # Handle the case where the percentage string can't be converted
+                print(f"Failed to parse progress percentage: {d['_percent_str']}")
