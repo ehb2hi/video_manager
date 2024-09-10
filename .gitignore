@@ -1,5 +1,7 @@
 Download
 config
 build
+dist
+*.spec
 .vscode
 __pycache__

@@ -3,7 +3,7 @@
 # Set variables
 APP_NAME="video-manager"  # Changed to hyphen for debian package naming rules
 MAIN_FILE="video_manager.py"
-ICON_PATH="/home/brahim/Python_Workspace/video_manager/icons/icon.webp"
+ICON_PATH="/home/brahim/Python_Workspace/video_manager/icons/icon.png"
 CONFIG_DIR="config"  # Adjust based on your project structure.
 VERSION=$(grep -oP '(?<=__version__ = ")[^"]+' __version__.py)
 ARCH="amd64"  # Change this based on system architecture (e.g., i386 for 32-bit)
