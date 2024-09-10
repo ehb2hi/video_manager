@@ -1,47 +1,92 @@
+# MIT License
+# Copyright (c)  2024 Brahim El Hamdaoui
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QLineEdit)
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
-from moviepy.editor import VideoFileClip
 import os
+import subprocess
 
 class VideoSplitterWindow(QWidget):
-    def __init__(self):
+    def __init__(self, main_window):
         super().__init__()
+        self.main_window = main_window 
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Video Splitter")
+        self.setGeometry(100, 100, 500, 300)  # Set window size
 
         layout = QVBoxLayout()
 
+        # Custom font
+        font = QFont("Arial", 11)
+
         # Input video file
         self.video_label = QLabel('Select video file:')
+        self.video_label.setFont(font)
         self.video_button = QPushButton('Browse', self)
+        self.video_button.setFont(font)
+        self.video_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
         self.video_button.clicked.connect(self.select_video)
         self.video_path = QLineEdit(self)
+        self.video_path.setFont(font)
         layout.addWidget(self.video_label)
         layout.addWidget(self.video_path)
         layout.addWidget(self.video_button)
 
         # Chapters file
         self.chapters_label = QLabel('Select chapters file:')
+        self.chapters_label.setFont(font)
         self.chapters_button = QPushButton('Browse', self)
+        self.chapters_button.setFont(font)
+        self.chapters_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
         self.chapters_button.clicked.connect(self.select_chapters)
         self.chapters_path = QLineEdit(self)
+        self.chapters_path.setFont(font)
         layout.addWidget(self.chapters_label)
         layout.addWidget(self.chapters_path)
         layout.addWidget(self.chapters_button)
 
         # Destination path
         self.destination_button = QPushButton('Select Destination', self)
+        self.destination_button.setFont(font)
+        self.destination_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
         self.destination_button.clicked.connect(self.select_destination)
         layout.addWidget(self.destination_button)
 
         # Split button
         self.split_button = QPushButton('Split Video', self)
+        self.split_button.setFont(font)
+        self.split_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;")
         self.split_button.clicked.connect(self.split_video)
         layout.addWidget(self.split_button)
 
+        layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
+        
+
+    def closeEvent(self, event):
+        self.main_window.show()  # Show the main window again when this window is closed
+        event.accept()  # Accept the close even
 
     def select_video(self):
         file_path, _ = QFileDialog.getOpenFileName(self, 'Select Video File')
@@ -74,7 +119,15 @@ class VideoSplitterWindow(QWidget):
                 end_time = self.convert_time_to_seconds(next_time_str)
 
                 output_path = os.path.join(self.destination_path, f"{title}.mp4")
-                ffmpeg_extract_subclip(video_file, start_time, end_time, targetname=output_path)
+
+                # Run FFmpeg with the `-strict -2` option
+                ffmpeg_command = [
+                    'ffmpeg', '-i', video_file, '-ss', str(start_time), '-to', str(end_time),
+                    '-c', 'copy', '-strict', '-2', output_path
+                ]
+
+                # Execute the command
+                subprocess.run(ffmpeg_command)
                 print(f"Saved {title} to {output_path}")
 
     def convert_time_to_seconds(self, time_str):
