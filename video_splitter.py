@@ -73,6 +73,11 @@ class VideoSplitterWindow(QWidget):
         self.destination_button.clicked.connect(self.select_destination)
         layout.addWidget(self.destination_button)
 
+        # Label to display selected destination path
+        self.destination_label = QLabel('No destination selected')
+        self.destination_label.setFont(font)
+        layout.addWidget(self.destination_label)
+
         # Split button
         self.split_button = QPushButton('Split Video', self)
         self.split_button.setFont(font)
@@ -82,6 +87,7 @@ class VideoSplitterWindow(QWidget):
 
         layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
+
         
 
     def closeEvent(self, event):
@@ -101,7 +107,9 @@ class VideoSplitterWindow(QWidget):
     def select_destination(self):
         self.destination_path = QFileDialog.getExistingDirectory(self, 'Select Destination Folder')
         if self.destination_path:
-            print(f"Selected destination path: {self.destination_path}")
+            self.destination_label.setText(f"Destination: {self.destination_path}")
+        else:
+            self.destination_label.setText("No destination selected")
 
     def split_video(self):
         video_file = self.video_path.text()

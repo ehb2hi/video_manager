@@ -64,6 +64,11 @@ class YouTubeDownloaderWindow(QWidget):
         self.path_button.clicked.connect(self.select_path)
         layout.addWidget(self.path_button)
 
+        # Label to display selected download path
+        self.path_label = QLabel('No path selected')
+        self.path_label.setFont(font)
+        layout.addWidget(self.path_label)
+
         # Progress Bar
         self.progress = QProgressBar(self)
         self.progress.setValue(0)
@@ -78,6 +83,7 @@ class YouTubeDownloaderWindow(QWidget):
 
         layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
+
         
     def closeEvent(self, event):
         self.main_window.show()  # Show the main window again when this window is closed
@@ -86,7 +92,9 @@ class YouTubeDownloaderWindow(QWidget):
     def select_path(self):
         self.download_path = QFileDialog.getExistingDirectory(self, 'Select Directory')
         if self.download_path:
-            print(f"Selected path: {self.download_path}")
+            self.path_label.setText(f"Download Path: {self.download_path}")
+        else:
+            self.path_label.setText("No path selected")
 
     def start_download(self):
         url = self.url_input.text()
