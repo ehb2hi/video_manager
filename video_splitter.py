@@ -25,6 +25,25 @@ from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 import os
 import subprocess
 
+
+button_style = """
+    QPushButton {
+        background-color: #FFC107;  /* Button color */
+        color: black;
+        padding: 10px;
+        border-radius: 15px;  /* Rounded corners */
+        font-size: 14px;
+        min-height: 40px;  /* Set minimum height */
+        min-width: 150px;   /* Set minimum width */
+    }
+    QPushButton:hover {
+        background-color: #FFB300;  /* Hover effect */
+    }
+    QPushButton:pressed {
+        background-color: #FF9800;  /* Pressed effect */
+    }
+"""
+
 class VideoSplitterWindow(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -45,7 +64,7 @@ class VideoSplitterWindow(QWidget):
         self.video_label.setFont(font)
         self.video_button = QPushButton('Browse', self)
         self.video_button.setFont(font)
-        self.video_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
+        self.video_button.setStyleSheet(button_style)
         self.video_button.clicked.connect(self.select_video)
         self.video_path = QLineEdit(self)
         self.video_path.setFont(font)
@@ -58,7 +77,7 @@ class VideoSplitterWindow(QWidget):
         self.chapters_label.setFont(font)
         self.chapters_button = QPushButton('Browse', self)
         self.chapters_button.setFont(font)
-        self.chapters_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
+        self.chapters_button.setStyleSheet(button_style)
         self.chapters_button.clicked.connect(self.select_chapters)
         self.chapters_path = QLineEdit(self)
         self.chapters_path.setFont(font)
@@ -69,7 +88,7 @@ class VideoSplitterWindow(QWidget):
         # Destination path
         self.destination_button = QPushButton('Select Destination', self)
         self.destination_button.setFont(font)
-        self.destination_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
+        self.destination_button.setStyleSheet(button_style)
         self.destination_button.clicked.connect(self.select_destination)
         layout.addWidget(self.destination_button)
 
@@ -81,7 +100,7 @@ class VideoSplitterWindow(QWidget):
         # Split button
         self.split_button = QPushButton('Split Video', self)
         self.split_button.setFont(font)
-        self.split_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;")
+        self.split_button.setStyleSheet(button_style)
         self.split_button.clicked.connect(self.split_video)
         layout.addWidget(self.split_button)
 
@@ -91,7 +110,7 @@ class VideoSplitterWindow(QWidget):
         
 
     def closeEvent(self, event):
-        self.main_window.show()  # Show the main window again when this window is closed
+        #self.main_window.show()  # Show the main window again when this window is closed
         event.accept()  # Accept the close even
 
     def select_video(self):

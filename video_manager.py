@@ -19,11 +19,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import sys
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from youtube_downloader import YouTubeDownloaderWindow
 from video_splitter import VideoSplitterWindow
+from video_editor import VideoEditorWindow
+
+
+button_style = """
+    QPushButton {
+        background-color: #FFC107;  /* Button color */
+        color: black;
+        padding: 10px;
+        border-radius: 15px;  /* Rounded corners */
+        font-size: 14px;
+        min-height: 40px;  /* Set minimum height */
+        min-width: 150px;   /* Set minimum width */
+    }
+    QPushButton:hover {
+        background-color: #FFB300;  /* Hover effect */
+    }
+    QPushButton:pressed {
+        background-color: #FF9800;  /* Pressed effect */
+    }
+"""
 
 
 class MainWindow(QWidget):
@@ -43,16 +63,23 @@ class MainWindow(QWidget):
         # YouTube Downloader button
         self.yt_button = QPushButton('YouTube Downloader', self)
         self.yt_button.setFont(font)
-        self.yt_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px;")
+        self.yt_button.setStyleSheet(button_style)
         self.yt_button.clicked.connect(self.open_youtube_downloader)
         layout.addWidget(self.yt_button)
 
         # Video Splitter button
         self.splitter_button = QPushButton('Video Splitter', self)
         self.splitter_button.setFont(font)
-        self.splitter_button.setStyleSheet("background-color: #2196F3; color: white; padding: 10px;")
+        self.splitter_button.setStyleSheet(button_style)
         self.splitter_button.clicked.connect(self.open_video_splitter)
         layout.addWidget(self.splitter_button)
+        
+        # Basic Video Editor button
+        self.editor_button = QPushButton('Basic Video Editor', self)
+        self.editor_button.setFont(font)
+        self.editor_button.setStyleSheet(button_style)
+        self.editor_button.clicked.connect(self.open_video_editor)
+        layout.addWidget(self.editor_button)
 
         layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
@@ -60,12 +87,19 @@ class MainWindow(QWidget):
     def open_youtube_downloader(self):
         self.youtube_window = YouTubeDownloaderWindow(self)
         self.youtube_window.show()
-        self.hide()  # Hide the main window when the YouTube downloader window opens
+        # self.hide()  # Hide the main window when the YouTube downloader window opens
 
     def open_video_splitter(self):
         self.splitter_window = VideoSplitterWindow(self)
         self.splitter_window.show()
-        self.hide()  # Hide the main window when the video splitter window opens
+        # self.hide()  # Hide the main window when the video splitter window opens
+        
+    def open_video_editor(self):
+        self.editor_window = VideoEditorWindow(self)
+        self.editor_window.show()
+        # self.hide()  # Hide the main window when the video editor opens
+        
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

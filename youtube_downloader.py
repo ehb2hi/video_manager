@@ -25,6 +25,24 @@ import yt_dlp
 import os
 import re
 
+button_style = """
+    QPushButton {
+        background-color: #FFC107;  /* Button color */
+        color: black;
+        padding: 10px;
+        border-radius: 15px;  /* Rounded corners */
+        font-size: 14px;
+        min-height: 40px;  /* Set minimum height */
+        min-width: 150px;   /* Set minimum width */
+    }
+    QPushButton:hover {
+        background-color: #FFB300;  /* Hover effect */
+    }
+    QPushButton:pressed {
+        background-color: #FF9800;  /* Pressed effect */
+    }
+"""
+
 class YouTubeDownloaderWindow(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -60,7 +78,7 @@ class YouTubeDownloaderWindow(QWidget):
         # Destination folder
         self.path_button = QPushButton('Select Download Path', self)
         self.path_button.setFont(font)
-        self.path_button.setStyleSheet("background-color: #FFC107; color: black; padding: 8px;")
+        self.path_button.setStyleSheet(button_style)
         self.path_button.clicked.connect(self.select_path)
         layout.addWidget(self.path_button)
 
@@ -77,7 +95,7 @@ class YouTubeDownloaderWindow(QWidget):
         # Download button
         self.download_button = QPushButton('Download', self)
         self.download_button.setFont(font)
-        self.download_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 8px;")
+        self.download_button.setStyleSheet(button_style)
         self.download_button.clicked.connect(self.start_download)
         layout.addWidget(self.download_button)
 
@@ -86,7 +104,7 @@ class YouTubeDownloaderWindow(QWidget):
 
         
     def closeEvent(self, event):
-        self.main_window.show()  # Show the main window again when this window is closed
+        #self.main_window.show()  # Show the main window again when this window is closed
         event.accept()  # Accept the close event
         
     def select_path(self):
