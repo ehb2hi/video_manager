@@ -25,6 +25,7 @@ from PyQt5.QtGui import QFont, QIcon
 from youtube_downloader import YouTubeDownloaderWindow
 from video_splitter import VideoSplitterWindow
 from video_editor import VideoEditorWindow
+from youtube_uploader import YouTubeUploaderWindow
 
 
 button_style = """
@@ -85,6 +86,13 @@ class MainWindow(QWidget):
         self.editor_button.clicked.connect(self.open_video_editor)
         layout.addWidget(self.editor_button)
 
+        # YouTube Uploader button
+        self.uploader_button = QPushButton('YouTube Uploader', self)
+        self.uploader_button.setFont(font)
+        self.uploader_button.setStyleSheet(button_style)
+        self.uploader_button.clicked.connect(self.open_youtube_uploader)
+        layout.addWidget(self.uploader_button)
+
         layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
 
@@ -103,6 +111,11 @@ class MainWindow(QWidget):
         self.editor_window.show()
         # self.hide()  # Hide the main window when the video editor opens
         
+    def open_youtube_uploader(self):
+        self.uploader_window = YouTubeUploaderWindow(self)
+        self.uploader_window.show()
+        # self.hide()  # Hide the main window when the uploader opens
+
 
 
 def main():

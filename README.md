@@ -7,6 +7,8 @@ Features
 - YouTube downloader: Choose resolution and download with yt-dlp.
 - Video splitter: Split by chapter timestamps into separate files.
 - Simple PyQt5 interface with progress display.
+- YouTube uploader: Upload videos to your channel with title, description, tags, privacy, and category. OAuth flow supported.
+  - Optional: choose a thumbnail image (JPG/PNG/GIF) to set after the upload completes.
 
 Requirements
 
@@ -38,6 +40,8 @@ Usage Notes
 
 - YouTube Downloader: Enter URL, pick resolution, select download path, then Download.
 - Video Splitter: Select input video, provide a chapters text file, choose output folder, then Split.
+- YouTube Uploader: Provide video file, title, description, tags, category, privacy, and a Google `credentials.json` to authorize uploads to your channel.
+  - Optionally select a thumbnail image to be set for the uploaded video.
 
 Chapters File Format
 
@@ -78,3 +82,10 @@ MIT License. See headers in source files.
 Contributing
 
 Issues and PRs are welcome.
+
+YouTube API Setup
+
+- Create a Google Cloud project and enable the “YouTube Data API v3”.
+- Create OAuth 2.0 Client Credentials (Desktop App) and download `credentials.json`.
+- In the app’s Uploader, select your `credentials.json`. On first upload, a browser window opens to authorize. A token is saved under `~/.video_manager/youtube_token.json` for reuse.
+- Scope requested: `https://www.googleapis.com/auth/youtube.upload`.

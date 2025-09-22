@@ -42,12 +42,16 @@ setup(
         "youtube_downloader",
         "video_splitter",
         "video_editor",
+        "youtube_uploader",
     ],
     install_requires=[
         "yt-dlp",
         "moviepy",
         "PyQt5",
         "PyQtWebEngine",
+        "google-api-python-client",
+        "google-auth-httplib2",
+        "google-auth-oauthlib",
     ],
     entry_points={
         "console_scripts": [

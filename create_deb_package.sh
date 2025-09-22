@@ -30,12 +30,18 @@ pyinstaller --onefile --name "$OUTPUT_EXEC" \
             --add-data "youtube_downloader.py:." \
             --add-data "video_splitter.py:." \
             --add-data "video_editor.py:." \
+            --add-data "youtube_uploader.py:." \
             --hidden-import yt_dlp \
             --hidden-import moviepy \
             --hidden-import moviepy.video \
             --hidden-import moviepy.video.io \
             --hidden-import moviepy.video.io.ffmpeg_tools \
             --hidden-import PyQt5.QtWebEngineWidgets \
+            --hidden-import googleapiclient.discovery \
+            --hidden-import googleapiclient.http \
+            --hidden-import googleapiclient.errors \
+            --hidden-import google.oauth2.credentials \
+            --hidden-import google_auth_oauthlib.flow \
             "$MAIN_FILE"
 
 # Check if the build was successful
