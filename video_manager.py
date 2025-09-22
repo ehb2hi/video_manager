@@ -21,7 +21,7 @@
 import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon
 from youtube_downloader import YouTubeDownloaderWindow
 from video_splitter import VideoSplitterWindow
 from video_editor import VideoEditorWindow
@@ -54,6 +54,10 @@ class MainWindow(QWidget):
     def initUI(self):
         self.setWindowTitle("Video Tools")
         self.setGeometry(100, 100, 400, 200)  # Set window size
+        try:
+            self.setWindowIcon(QIcon("icons/icon.png"))
+        except Exception:
+            pass
 
         layout = QVBoxLayout()
 
@@ -101,8 +105,15 @@ class MainWindow(QWidget):
         
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
+    # Configure QSettings scope
+    QtCore.QCoreApplication.setOrganizationName("BrahimElHamdaoui")
+    QtCore.QCoreApplication.setApplicationName("Video Manager")
     main_window = MainWindow()
     main_window.show()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "video_manager"
+version = "0.1.1"
+description = "Download YouTube videos and split videos into chapters."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Brahim El Hamdaoui" }]
+dependencies = [
+  "yt-dlp",
+  "moviepy",
+  "PyQt5",
+  "PyQtWebEngine",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.scripts]
+video_manager = "video_manager:main"
+
+[tool.setuptools]
+py-modules = [
+  "video_manager",
+  "youtube_downloader",
+  "video_splitter",
+  "video_editor",
+]
