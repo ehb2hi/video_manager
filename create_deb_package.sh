@@ -27,6 +27,8 @@ python3 -m pip install pyinstaller yt-dlp moviepy PyQt5 PyQtWebEngine
 echo "Running PyInstaller to build the application..."
 pyinstaller --onefile --name "$OUTPUT_EXEC" \
             --add-data "$CONFIG_DIR:$CONFIG_DIR" \
+            --add-data "icons:icons" \
+            --add-data "styles:styles" \
             --add-data "youtube_downloader.py:." \
             --add-data "video_splitter.py:." \
             --add-data "video_editor.py:." \
@@ -37,6 +39,7 @@ pyinstaller --onefile --name "$OUTPUT_EXEC" \
             --hidden-import moviepy.video.io \
             --hidden-import moviepy.video.io.ffmpeg_tools \
             --hidden-import PyQt5.QtWebEngineWidgets \
+            --hidden-import PyQt5.QtSvg \
             --hidden-import googleapiclient.discovery \
             --hidden-import googleapiclient.http \
             --hidden-import googleapiclient.errors \

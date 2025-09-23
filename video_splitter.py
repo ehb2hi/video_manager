@@ -39,23 +39,7 @@ import re
 import shutil
 
 
-button_style = """
-    QPushButton {
-        background-color: #FFC107;  /* Button color */
-        color: black;
-        padding: 10px;
-        border-radius: 15px;  /* Rounded corners */
-        font-size: 14px;
-        min-height: 40px;  /* Set minimum height */
-        min-width: 150px;   /* Set minimum width */
-    }
-    QPushButton:hover {
-        background-color: #FFB300;  /* Hover effect */
-    }
-    QPushButton:pressed {
-        background-color: #FF9800;  /* Pressed effect */
-    }
-"""
+# Button styling is handled globally via the app theme (QSS)
 
 class VideoSplitterWindow(QWidget):
     def __init__(self, main_window):
@@ -77,7 +61,6 @@ class VideoSplitterWindow(QWidget):
         self.video_label.setFont(font)
         self.video_button = QPushButton('Browse', self)
         self.video_button.setFont(font)
-        self.video_button.setStyleSheet(button_style)
         self.video_button.clicked.connect(self.select_video)
         self.video_path = QLineEdit(self)
         self.video_path.setFont(font)
@@ -90,7 +73,6 @@ class VideoSplitterWindow(QWidget):
         self.chapters_label.setFont(font)
         self.chapters_button = QPushButton('Browse', self)
         self.chapters_button.setFont(font)
-        self.chapters_button.setStyleSheet(button_style)
         self.chapters_button.clicked.connect(self.select_chapters)
         self.chapters_path = QLineEdit(self)
         self.chapters_path.setFont(font)
@@ -101,7 +83,6 @@ class VideoSplitterWindow(QWidget):
         # Destination path
         self.destination_button = QPushButton('Select Destination', self)
         self.destination_button.setFont(font)
-        self.destination_button.setStyleSheet(button_style)
         self.destination_button.clicked.connect(self.select_destination)
         layout.addWidget(self.destination_button)
 
@@ -124,13 +105,11 @@ class VideoSplitterWindow(QWidget):
         controls = QHBoxLayout()
         self.split_button = QPushButton('Split Video', self)
         self.split_button.setFont(font)
-        self.split_button.setStyleSheet(button_style)
         self.split_button.clicked.connect(self.split_video)
         controls.addWidget(self.split_button)
 
         self.cancel_button = QPushButton('Cancel', self)
         self.cancel_button.setFont(font)
-        self.cancel_button.setStyleSheet(button_style)
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self.cancel_split)
         controls.addWidget(self.cancel_button)

@@ -36,23 +36,7 @@ import yt_dlp
 import os
 import re
 
-button_style = """
-    QPushButton {
-        background-color: #FFC107;  /* Button color */
-        color: black;
-        padding: 10px;
-        border-radius: 15px;  /* Rounded corners */
-        font-size: 14px;
-        min-height: 40px;  /* Set minimum height */
-        min-width: 150px;   /* Set minimum width */
-    }
-    QPushButton:hover {
-        background-color: #FFB300;  /* Hover effect */
-    }
-    QPushButton:pressed {
-        background-color: #FF9800;  /* Pressed effect */
-    }
-"""
+# Button styling is handled globally via the app theme (QSS)
 
 class YouTubeDownloaderWindow(QWidget):
     def __init__(self, main_window):
@@ -89,7 +73,6 @@ class YouTubeDownloaderWindow(QWidget):
         # Destination folder
         self.path_button = QPushButton('Select Download Path', self)
         self.path_button.setFont(font)
-        self.path_button.setStyleSheet(button_style)
         self.path_button.clicked.connect(self.select_path)
         layout.addWidget(self.path_button)
 
@@ -112,13 +95,11 @@ class YouTubeDownloaderWindow(QWidget):
         controls = QHBoxLayout()
         self.download_button = QPushButton('Download', self)
         self.download_button.setFont(font)
-        self.download_button.setStyleSheet(button_style)
         self.download_button.clicked.connect(self.start_download)
         controls.addWidget(self.download_button)
 
         self.cancel_button = QPushButton('Cancel', self)
         self.cancel_button.setFont(font)
-        self.cancel_button.setStyleSheet(button_style)
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self.cancel_download)
         controls.addWidget(self.cancel_button)

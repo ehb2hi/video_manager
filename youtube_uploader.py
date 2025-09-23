@@ -27,19 +27,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 
 
-button_style = """
-    QPushButton {
-        background-color: #FFC107;
-        color: black;
-        padding: 10px;
-        border-radius: 15px;
-        font-size: 14px;
-        min-height: 36px;
-        min-width: 140px;
-    }
-    QPushButton:hover { background-color: #FFB300; }
-    QPushButton:pressed { background-color: #FF9800; }
-"""
+# Button styling is handled globally via the app theme (QSS)
 
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
@@ -62,7 +50,6 @@ class YouTubeUploaderWindow(QWidget):
         self.video_label = QLabel("Video file:")
         self.video_path = QLineEdit()
         btn_browse_video = QPushButton("Browse")
-        btn_browse_video.setStyleSheet(button_style)
         btn_browse_video.clicked.connect(self._choose_video)
         row1 = QHBoxLayout()
         row1.addWidget(self.video_label)
@@ -119,7 +106,6 @@ class YouTubeUploaderWindow(QWidget):
         self.creds_label = QLabel("Google credentials.json:")
         self.creds_path = QLineEdit()
         btn_browse_creds = QPushButton("Browse")
-        btn_browse_creds.setStyleSheet(button_style)
         btn_browse_creds.clicked.connect(self._choose_creds)
         row3 = QHBoxLayout()
         row3.addWidget(self.creds_label)
@@ -131,7 +117,6 @@ class YouTubeUploaderWindow(QWidget):
         self.thumb_label = QLabel("Thumbnail (optional):")
         self.thumb_path = QLineEdit()
         btn_browse_thumb = QPushButton("Browse")
-        btn_browse_thumb.setStyleSheet(button_style)
         btn_browse_thumb.clicked.connect(self._choose_thumbnail)
         row4 = QHBoxLayout()
         row4.addWidget(self.thumb_label)
@@ -146,12 +131,10 @@ class YouTubeUploaderWindow(QWidget):
 
         controls = QHBoxLayout()
         self.upload_button = QPushButton("Upload")
-        self.upload_button.setStyleSheet(button_style)
         self.upload_button.clicked.connect(self._start_upload)
         controls.addWidget(self.upload_button)
 
         self.cancel_button = QPushButton("Cancel")
-        self.cancel_button.setStyleSheet(button_style)
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self._cancel_upload)
         controls.addWidget(self.cancel_button)

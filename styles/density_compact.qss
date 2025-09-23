@@ -1,0 +1,6 @@
+/* Compact density overrides */
+QPushButton { padding: 6px 10px; border-radius: 8px; }
+QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox { padding: 4px 8px; border-radius: 6px; }
+QTabBar::tab { padding: 6px 8px; }
+QDockWidget::title { padding: 4px 6px; }
+QProgressBar { padding: 0 4px; }
