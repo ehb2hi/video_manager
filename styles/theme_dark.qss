@@ -1,0 +1,53 @@
+/* Base */
+QMainWindow { background-color: #121417; }
+QWidget { color: #e5e7eb; font-size: 12pt; }
+
+/* Panels */
+QDockWidget { border: 1px solid #2a2f35; background-color: #121417; }
+QDockWidget::title { background-color: #1b1f24; padding: 6px 8px; border-bottom: 1px solid #2a2f35; font-weight: 600; }
+QMdiArea { background-color: #0f1216; }
+QMdiSubWindow { background-color: #1b1f24; border: 1px solid #2a2f35; border-radius: 8px; }
+
+/* Tabs (for Tabbed MDI) */
+QTabBar::tab { background-color: #1b1f24; color: #e5e7eb; padding: 8px 12px; margin-right: 2px; border: 1px solid #2a2f35; border-bottom: none; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+QTabBar::tab:hover { border-color: ${ACCENT_HOVER}; }
+QTabBar::tab:selected { border-color: ${ACCENT_ACTIVE}; color: #ffffff; }
+QTabWidget::pane { border: 1px solid #2a2f35; top: -1px; }
+
+/* Inputs */
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QDateEdit, QTimeEdit, QDateTimeEdit {
+  background-color: #0f1216; border: 1px solid #2a2f35; border-radius: 8px; padding: 6px 10px;
+  selection-background-color: ${ACCENT_HOVER}; selection-color: #111;
+}
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+  border: 2px solid #ff9800;
+}
+
+/* ComboBox */
+QComboBox { background-color: #0f1216; border: 1px solid #2a2f35; border-radius: 8px; padding: 6px 10px; color: #e5e7eb; }
+QComboBox::drop-down { width: 26px; border-left: 1px solid #2a2f35; }
+QComboBox QAbstractItemView { background-color: #1b1f24; border: 1px solid #2a2f35; selection-background-color: #ffb300; selection-color: #111; }
+
+/* Buttons (generic) */
+QPushButton { background-color: ${ACCENT}; color: #111; border: none; border-radius: 10px; padding: 8px 14px; }
+QPushButton:hover { background-color: ${ACCENT_HOVER}; }
+QPushButton:pressed { background-color: ${ACCENT_ACTIVE}; }
+QPushButton:disabled { background: #2a2f35; color: #6b7280; }
+
+/* Progress */
+QProgressBar { border: 1px solid #2a2f35; border-radius: 8px; background-color: #0f1216; text-align: center; color: #e5e7eb; }
+QProgressBar::chunk { background-color: ${ACCENT_HOVER}; border-radius: 8px; }
+
+/* Menus */
+QMenu { background-color: #1b1f24; border: 1px solid #2a2f35; }
+QMenu::item { padding: 6px 16px; }
+QMenu::item:selected { background: #3b2f17; }
+
+/* Scrollbars */
+QScrollBar:vertical { width: 10px; background-color: transparent; }
+QScrollBar::handle:vertical { background-color: #374151; min-height: 40px; border-radius: 5px; }
+QScrollBar::handle:vertical:hover { background-color: #475569; }
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+QScrollBar:horizontal { height: 10px; background-color: transparent; }
+QScrollBar::handle:horizontal { background-color: #374151; min-width: 40px; border-radius: 5px; }
+QScrollBar::handle:horizontal:hover { background-color: #475569; }
