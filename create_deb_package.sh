@@ -14,25 +14,37 @@ cd "$(dirname "$0")"
 
 # Check if VERSION was successfully extracted
 if [ -z "$VERSION" ]; then
-    echo "Error: Could not extract version from video_manager/__version__.py."
+    echo "Error: Could not extract version from __version__.py."
     exit 1
 fi
 
 # Step 1: Install necessary Python dependencies
 echo "Installing necessary Python dependencies..."
-pip install pyinstaller yt-dlp moviepy PyQt5
+python3 -m pip install --upgrade pip >/dev/null 2>&1 || true
+python3 -m pip install pyinstaller yt-dlp moviepy PyQt5 PyQtWebEngine
 
 # Step 2: Run PyInstaller to create a standalone executable
 echo "Running PyInstaller to build the application..."
 pyinstaller --onefile --name "$OUTPUT_EXEC" \
             --add-data "$CONFIG_DIR:$CONFIG_DIR" \
+            --add-data "icons:icons" \
+            --add-data "styles:styles" \
             --add-data "youtube_downloader.py:." \
             --add-data "video_splitter.py:." \
+            --add-data "video_editor.py:." \
+            --add-data "youtube_uploader.py:." \
             --hidden-import yt_dlp \
             --hidden-import moviepy \
             --hidden-import moviepy.video \
             --hidden-import moviepy.video.io \
             --hidden-import moviepy.video.io.ffmpeg_tools \
+            --hidden-import PyQt5.QtWebEngineWidgets \
+            --hidden-import PyQt5.QtSvg \
+            --hidden-import googleapiclient.discovery \
+            --hidden-import googleapiclient.http \
+            --hidden-import googleapiclient.errors \
+            --hidden-import google.oauth2.credentials \
+            --hidden-import google_auth_oauthlib.flow \
             "$MAIN_FILE"
 
 # Check if the build was successful

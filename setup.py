@@ -21,21 +21,41 @@
 
 from setuptools import setup
 
+
 def get_version():
     version_ns = {}
-    with open("video_manager/__version__.py") as f:
-        exec(f.read(), version_ns)  # This will read the version file into version_ns dictionary
+    with open("__version__.py") as f:
+        exec(f.read(), version_ns)
     return version_ns["__version__"]
+
 
 setup(
     name="video_manager",
     version=get_version(),
-    description="A tool for downloading YouTube videos and splitting videos",
-    author="Your Name",
-    packages=["video_manager"],
+    description="Download YouTube videos and split videos into chapters.",
+    author="Brahim El Hamdaoui",
+    author_email="",
+    python_requires=">=3.10",
+    # Flat-layout modules
+    py_modules=[
+        "video_manager",
+        "youtube_downloader",
+        "video_splitter",
+        "video_editor",
+        "youtube_uploader",
+    ],
     install_requires=[
-        'yt-dlp',
-        'moviepy',
-        'PyQt5'
-    ]
+        "yt-dlp",
+        "moviepy",
+        "PyQt5",
+        "PyQtWebEngine",
+        "google-api-python-client",
+        "google-auth-httplib2",
+        "google-auth-oauthlib",
+    ],
+    entry_points={
+        "console_scripts": [
+            "video_manager=video_manager:main",
+        ]
+    },
 )

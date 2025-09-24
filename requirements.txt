@@ -1,0 +1,7 @@
+yt-dlp
+moviepy
+PyQt5
+PyQtWebEngine
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
