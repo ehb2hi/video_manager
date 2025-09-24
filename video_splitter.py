@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
+    QFormLayout,
     QLabel,
     QPushButton,
     QFileDialog,
@@ -52,49 +53,65 @@ class VideoSplitterWindow(QWidget):
         self.setGeometry(100, 100, 500, 300)  # Set window size
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(8)
+        layout.setAlignment(Qt.AlignTop)
+
+        form = QFormLayout()
+        form.setLabelAlignment(Qt.AlignRight)
+        form.setFormAlignment(Qt.AlignTop)
+        form.setHorizontalSpacing(10)
+        form.setVerticalSpacing(8)
+        form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
 
         # Custom font
         font = QFont("Arial", 11)
 
-        # Input video file
-        self.video_label = QLabel('Select video file:')
-        self.video_label.setFont(font)
+        # Input video file row
+        row_vid = QHBoxLayout()
+        row_vid.setSpacing(8)
+        self.video_path = QLineEdit(self)
+        self.video_path.setFont(font)
+        row_vid.addWidget(self.video_path, 1)
         self.video_button = QPushButton('Browse', self)
         self.video_button.setFont(font)
         self.video_button.clicked.connect(self.select_video)
-        self.video_path = QLineEdit(self)
-        self.video_path.setFont(font)
-        layout.addWidget(self.video_label)
-        layout.addWidget(self.video_path)
-        layout.addWidget(self.video_button)
+        row_vid.addWidget(self.video_button)
+        form.addRow(QLabel('Video file:'), row_vid)
 
-        # Chapters file
-        self.chapters_label = QLabel('Select chapters file:')
-        self.chapters_label.setFont(font)
+        # Chapters file row
+        row_ch = QHBoxLayout()
+        row_ch.setSpacing(8)
+        self.chapters_path = QLineEdit(self)
+        self.chapters_path.setFont(font)
+        row_ch.addWidget(self.chapters_path, 1)
         self.chapters_button = QPushButton('Browse', self)
         self.chapters_button.setFont(font)
         self.chapters_button.clicked.connect(self.select_chapters)
-        self.chapters_path = QLineEdit(self)
-        self.chapters_path.setFont(font)
-        layout.addWidget(self.chapters_label)
-        layout.addWidget(self.chapters_path)
-        layout.addWidget(self.chapters_button)
+        row_ch.addWidget(self.chapters_button)
+        form.addRow(QLabel('Chapters file:'), row_ch)
 
-        # Destination path
-        self.destination_button = QPushButton('Select Destination', self)
+        # Destination path row
+        row_dest = QHBoxLayout()
+        row_dest.setSpacing(8)
+        self.destination_path_display = QLineEdit(self)
+        self.destination_path_display.setReadOnly(True)
+        self.destination_path_display.setPlaceholderText('No destination selected')
+        self.destination_path_display.setFont(font)
+        row_dest.addWidget(self.destination_path_display, 1)
+        self.destination_button = QPushButton('Browse', self)
         self.destination_button.setFont(font)
         self.destination_button.clicked.connect(self.select_destination)
-        layout.addWidget(self.destination_button)
-
-        # Label to display selected destination path
-        self.destination_label = QLabel('No destination selected')
-        self.destination_label.setFont(font)
-        layout.addWidget(self.destination_label)
+        row_dest.addWidget(self.destination_button)
+        form.addRow(QLabel('Destination:'), row_dest)
 
         # Options
         self.accurate_checkbox = QCheckBox('Accurate cut (re-encode)')
         self.accurate_checkbox.setFont(font)
-        layout.addWidget(self.accurate_checkbox)
+        form.addRow(QLabel(''), self.accurate_checkbox)
+
+        # Place form at the top
+        layout.addLayout(form)
 
         # Progress bar
         self.progress = QProgressBar(self)
@@ -115,7 +132,6 @@ class VideoSplitterWindow(QWidget):
         controls.addWidget(self.cancel_button)
         layout.addLayout(controls)
 
-        layout.setContentsMargins(20, 20, 20, 20)
         self.setLayout(layout)
 
         # Internal state
@@ -131,7 +147,7 @@ class VideoSplitterWindow(QWidget):
         saved_dest = self.settings.value('splitter/destination_path', '')
         if saved_dest:
             self.destination_path = saved_dest
-            self.destination_label.setText(f"Destination: {self.destination_path}")
+            self.destination_path_display.setText(self.destination_path)
         saved_accurate = self.settings.value('splitter/accurate', False, type=bool)
         self.accurate_checkbox.setChecked(bool(saved_accurate))
         self.accurate_checkbox.stateChanged.connect(lambda _: self.settings.setValue('splitter/accurate', self.accurate_checkbox.isChecked()))
@@ -156,10 +172,10 @@ class VideoSplitterWindow(QWidget):
     def select_destination(self):
         self.destination_path = QFileDialog.getExistingDirectory(self, 'Select Destination Folder')
         if self.destination_path:
-            self.destination_label.setText(f"Destination: {self.destination_path}")
+            self.destination_path_display.setText(self.destination_path)
             self.settings.setValue('splitter/destination_path', self.destination_path)
         else:
-            self.destination_label.setText("No destination selected")
+            self.destination_path_display.clear()
 
     def split_video(self):
         video_file = self.video_path.text().strip()

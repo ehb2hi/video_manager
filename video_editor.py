@@ -3,7 +3,7 @@ import os
 import re
 from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl, pyqtSignal, QObject, QThread
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFormLayout, QFileDialog, QMessageBox, QLabel
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -20,16 +20,27 @@ class VideoEditorWindow(QWidget):
         self.setGeometry(100, 100, 800, 600)
 
         layout = QVBoxLayout()
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(8)
+        layout.setAlignment(QtCore.Qt.AlignTop)
 
-        # URL input field for YouTube video
+        # Compact form for source selection
+        form = QFormLayout()
+        form.setLabelAlignment(QtCore.Qt.AlignRight)
+        form.setFormAlignment(QtCore.Qt.AlignTop)
+        form.setHorizontalSpacing(10)
+        form.setVerticalSpacing(8)
+        form.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+
         top = QHBoxLayout()
         self.url_input = QLineEdit(self)
         self.url_input.setPlaceholderText("Enter YouTube URL or MP4 path/URL")
-        top.addWidget(self.url_input)
+        top.addWidget(self.url_input, 1)
         self.browse_btn = QPushButton("Browse")
         self.browse_btn.clicked.connect(self.browse_file)
         top.addWidget(self.browse_btn)
-        layout.addLayout(top)
+        form.addRow(QLabel("Source:"), top)
+        layout.addLayout(form)
 
         # Load Video Button
         self.load_button = QPushButton('Load Video', self)
