@@ -153,9 +153,7 @@ class VideoEditorWindow(QWidget):
         if direct_url:
             self._play_mp4(QUrl(direct_url))
         else:
-            if error and not self._shown_gst_help:
-                self._show_gst_help(extra_detail=error)
-            # Fallback to YouTube embed
+            # Fallback to YouTube embed (do not show codec dialog for yt-dlp issues)
             vid = self.extract_video_id(self.url_input.text().strip())
             if vid:
                 self.video_widget.hide()
@@ -198,18 +196,25 @@ class _YTDLWorker(QObject):
     def run(self):
         try:
             import yt_dlp
-            ydl_opts = {
-                'quiet': True,
-                'no_warnings': True,
-                'skip_download': True,
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(self.url, download=False)
-            direct = self._pick_progressive(info)
-            if direct:
-                self.result.emit(direct, '')
-            else:
-                self.result.emit('', 'no-progressive-found')
+            errors = []
+            for client in ['android', 'mweb', 'web', 'ios', 'tv']:
+                try:
+                    ydl_opts = {
+                        'quiet': True,
+                        'no_warnings': True,
+                        'skip_download': True,
+                        'extractor_args': {'youtube': {'player_client': [client]}},
+                    }
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        info = ydl.extract_info(self.url, download=False)
+                    direct = self._pick_progressive(info)
+                    if direct:
+                        self.result.emit(direct, '')
+                        return
+                except Exception as e:
+                    errors.append(f"{client}: {e}")
+            # No progressive found → report first error string
+            self.result.emit('', "; ".join(errors) if errors else 'no-progressive-found')
         except Exception as e:
             self.result.emit('', str(e))
         finally:
