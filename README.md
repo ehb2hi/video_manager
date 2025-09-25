@@ -9,6 +9,7 @@ Features
 - Simple PyQt5 interface with progress display.
 - YouTube uploader: Upload videos to your channel with title, description, tags, privacy, and category. OAuth flow supported.
   - Optional: choose a thumbnail image (JPG/PNG/GIF) to set after the upload completes.
+  - Optional: load uploader fields from a YAML file.
 
 Requirements
 
@@ -42,6 +43,21 @@ Usage Notes
 - Video Splitter: Select input video, provide a chapters text file, choose output folder, then Split.
 - YouTube Uploader: Provide video file, title, description, tags, category, privacy, and a Google `credentials.json` to authorize uploads to your channel.
   - Optionally select a thumbnail image to be set for the uploaded video.
+  - Optionally click "Load YAML…" to prefill fields from a YAML config. Supported keys: `video`, `title`, `description`, `tags` (list or comma string), `category` (name or numeric ID), `privacy` (public/unlisted/private), `creds` (or `credentials`), and `thumbnail`.
+
+YAML Example
+
+```yaml
+video: /path/to/video.mp4
+title: My Video Title
+description: |
+  Multiline description here.
+tags: [python, demo, upload]
+category: Science & Technology  # or 28
+privacy: unlisted
+creds: /path/to/credentials.json
+thumbnail: /path/to/thumb.jpg
+```
 
 Chapters File Format
 

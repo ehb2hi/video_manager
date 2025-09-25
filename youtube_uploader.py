@@ -46,6 +46,16 @@ class YouTubeUploaderWindow(QWidget):
 
         layout = QVBoxLayout()
 
+        # Load from YAML configuration
+        yaml_row = QHBoxLayout()
+        self.yaml_hint = QLabel("Load fields from YAML:")
+        self.btn_load_yaml = QPushButton("Load YAML…")
+        self.btn_load_yaml.clicked.connect(self._load_yaml)
+        yaml_row.addWidget(self.yaml_hint)
+        yaml_row.addStretch(1)
+        yaml_row.addWidget(self.btn_load_yaml)
+        layout.addLayout(yaml_row)
+
         # Video file
         self.video_label = QLabel("Video file:")
         self.video_path = QLineEdit()
@@ -144,6 +154,88 @@ class YouTubeUploaderWindow(QWidget):
 
         # Restore settings
         self._restore_settings()
+
+    # --- YAML loading ---
+    def _load_yaml(self):
+        path, _ = QFileDialog.getOpenFileName(self, 'Select YAML file', filter='YAML files (*.yml *.yaml);;All files (*)')
+        if not path:
+            return
+        try:
+            try:
+                import yaml  # type: ignore
+            except Exception:
+                QMessageBox.warning(self, "Missing dependency", "PyYAML is required. Install with: pip install pyyaml")
+                return
+            with open(path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f) or {}
+            if not isinstance(data, dict):
+                raise ValueError("YAML root must be a mapping (dictionary)")
+            self._apply_yaml(data)
+        except Exception as e:
+            QMessageBox.critical(self, "YAML Error", f"Failed to load YAML: {e}")
+
+    def _apply_yaml(self, data: dict):
+        # Accept both keys and aliases
+        def get(*names, default=None):
+            for n in names:
+                if n in data and data[n] is not None:
+                    return data[n]
+            return default
+
+        # Expand paths
+        def expand(p):
+            if isinstance(p, str):
+                return os.path.expanduser(os.path.expandvars(p))
+            return p
+
+        video = expand(get('video', 'video_path'))
+        title = get('title')
+        description = get('description', 'desc')
+        tags = get('tags')
+        category = get('category', 'category_id', 'categoryId')
+        privacy = get('privacy', 'privacy_status', 'privacyStatus')
+        creds = expand(get('creds', 'credentials', 'credentials_file', 'creds_file'))
+        thumb = expand(get('thumbnail', 'thumb', 'thumbnail_path'))
+
+        if isinstance(video, str):
+            self.video_path.setText(video)
+        if isinstance(title, str):
+            self.title_input.setText(title)
+        if isinstance(description, str):
+            self.desc_input.setPlainText(description)
+        if isinstance(tags, str):
+            # comma-separated string
+            self.tags_input.setText(tags)
+        elif isinstance(tags, list):
+            self.tags_input.setText(', '.join([str(t) for t in tags]))
+        if category is not None:
+            self._set_category(category)
+        if isinstance(privacy, str):
+            idx = self.privacy_combo.findText(privacy.strip().lower())
+            if idx >= 0:
+                self.privacy_combo.setCurrentIndex(idx)
+        if isinstance(creds, str):
+            self.creds_path.setText(creds)
+        if isinstance(thumb, str):
+            self.thumb_path.setText(thumb)
+
+    def _set_category(self, value):
+        try:
+            # accept numeric id or category name
+            if isinstance(value, (int,)) or (isinstance(value, str) and value.isdigit()):
+                cid = int(value)
+                for i in range(self.category_combo.count()):
+                    if self.category_combo.itemData(i) == cid:
+                        self.category_combo.setCurrentIndex(i)
+                        return
+            else:
+                name = str(value).strip().lower()
+                for i in range(self.category_combo.count()):
+                    if str(self.category_combo.itemText(i)).strip().lower() == name:
+                        self.category_combo.setCurrentIndex(i)
+                        return
+        except Exception:
+            pass
 
     def _restore_settings(self):
         vp = self.settings.value('uploader/video_path', '')

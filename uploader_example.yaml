@@ -1,0 +1,34 @@
+# YouTube Uploader configuration example
+# Fill these fields and load from the Uploader via "Load YAML…"
+
+# Required
+video: /absolute/path/to/video.mp4
+title: My Awesome Video Title
+description: |
+  This is a multiline description.
+  You can write as many lines as you like here.
+
+# Optional
+tags:
+  - python
+  - demo
+  - upload
+
+# Either the numeric ID or the category name is accepted
+# Common IDs: 28 = Science & Technology, 10 = Music, 22 = People & Blogs
+category: Science & Technology  # or 28
+
+# One of: public, unlisted, private
+privacy: unlisted
+
+# Path to your Google API OAuth client credentials.json
+creds: /absolute/path/to/credentials.json
+
+# Optional thumbnail image path (JPG/PNG/GIF)
+thumbnail: /absolute/path/to/thumbnail.jpg
+
+# Aliases supported (uncomment to use instead of the above canonical keys):
+# video_path: /absolute/path/to/video.mp4
+# creds_file: /absolute/path/to/credentials.json
+# privacy_status: unlisted
+# category_id: 28
