@@ -4,6 +4,9 @@ import re
 from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl, pyqtSignal, QObject, QThread
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QFormLayout, QFileDialog, QMessageBox, QLabel
+from PyQt5.QtWidgets import QStyle
+from PyQt5.QtWidgets import QSlider
+from PyQt5.QtWidgets import QComboBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QLineEdit
 from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -52,7 +55,66 @@ class VideoEditorWindow(QWidget):
         self.video_widget = QVideoWidget()
         self.player.setVideoOutput(self.video_widget)
         self.player.error.connect(self._on_player_error)
+        self.player.stateChanged.connect(self._sync_play_button)
+        # Track time for slider + labels
+        self.player.positionChanged.connect(self._on_position_changed)
+        self.player.durationChanged.connect(self._on_duration_changed)
         layout.addWidget(self.video_widget)
+
+        # Position slider + time labels
+        timeline = QHBoxLayout()
+        timeline.setSpacing(8)
+        self.time_current = QLabel("00:00")
+        self.pos_slider = QSlider(QtCore.Qt.Horizontal)
+        self.pos_slider.setRange(0, 0)
+        self.pos_slider.setSingleStep(1000)
+        self.pos_slider.setPageStep(5000)
+        self.time_total = QLabel("00:00")
+        timeline.addWidget(self.time_current)
+        timeline.addWidget(self.pos_slider, 1)
+        timeline.addWidget(self.time_total)
+        layout.addLayout(timeline)
+        self.timeline_bar = timeline
+        self._scrubbing = False
+        self.pos_slider.sliderPressed.connect(self._on_slider_pressed)
+        self.pos_slider.sliderReleased.connect(self._on_slider_released)
+        self.pos_slider.sliderMoved.connect(self._on_slider_moved)
+
+        # Playback controls (QMediaPlayer)
+        controls = QHBoxLayout()
+        controls.setSpacing(8)
+        self.back_btn = QPushButton("« 10s")
+        self.play_btn = QPushButton()
+        self.stop_btn = QPushButton()
+        self.fwd_btn = QPushButton("10s »")
+
+        # Set common icons when available
+        self.play_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+        self.stop_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaStop))
+
+        self.back_btn.clicked.connect(lambda: self._nudge_position(-10000))
+        self.fwd_btn.clicked.connect(lambda: self._nudge_position(10000))
+        self.play_btn.clicked.connect(self._toggle_play)
+        self.stop_btn.clicked.connect(self.player.stop)
+
+        controls.addWidget(self.back_btn)
+        controls.addWidget(self.play_btn)
+        controls.addWidget(self.stop_btn)
+        controls.addWidget(self.fwd_btn)
+
+        # Speed control
+        self.speed_label = QLabel("Speed")
+        self.speed_combo = QComboBox()
+        self.speed_combo.addItems(["0.5x", "0.75x", "1.0x", "1.25x", "1.5x", "2.0x"]) 
+        self.speed_combo.setCurrentText("1.0x")
+        self.speed_combo.currentTextChanged.connect(self._on_speed_changed)
+        if not hasattr(self.player, 'setPlaybackRate'):
+            self.speed_combo.setEnabled(False)
+        controls.addStretch(1)
+        controls.addWidget(self.speed_label)
+        controls.addWidget(self.speed_combo)
+        layout.addLayout(controls)
+        self.controls_bar = controls  # Keep reference for show/hide
 
         # Web view fallback (YouTube embed or general URLs)
         self.browser = QWebEngineView()
@@ -60,6 +122,9 @@ class VideoEditorWindow(QWidget):
 
         self.video_widget.hide()
         self.browser.hide()
+        self._set_controls_visible(False)
+        # Initialize play button state text/icon
+        self._sync_play_button(self.player.state())
         self._shown_gst_help = False
 
         self.setLayout(layout)
@@ -84,6 +149,9 @@ class VideoEditorWindow(QWidget):
             return
         # Fallback: try to treat as URL
         if re.match(r"^https?://", text):
+            self.video_widget.hide()
+            self.browser.show()
+            self._set_controls_visible(False)
             self.browser.setUrl(QUrl(text))
 
     def browse_file(self):
@@ -113,6 +181,11 @@ class VideoEditorWindow(QWidget):
             self.player.stop()
             self.player.setMedia(QMediaContent(url))
             self.player.play()
+            self._set_controls_visible(True)
+            self._sync_play_button(self.player.state())
+            # Reset slider/time UI for new media
+            self._on_duration_changed(self.player.duration())
+            self._on_position_changed(self.player.position())
         except Exception:
             # Fallback to web HTML5 if multimedia fails
             src = url.toString()
@@ -128,6 +201,7 @@ class VideoEditorWindow(QWidget):
             self.video_widget.hide()
             self.browser.show()
             self.browser.setHtml(html, base)
+            self._set_controls_visible(False)
 
     def _load_youtube_progressive(self, yt_url: str):
         # Run yt-dlp in a worker thread to avoid blocking UI
@@ -159,6 +233,7 @@ class VideoEditorWindow(QWidget):
                 self.video_widget.hide()
                 self.browser.show()
                 self.browser.setUrl(QUrl(f"https://www.youtube.com/embed/{vid}"))
+                self._set_controls_visible(False)
 
     def closeEvent(self, event):
         # self.main_window.show()  # Show the main window again when this window is closed
@@ -176,13 +251,94 @@ class VideoEditorWindow(QWidget):
             "Video playback backend is missing codecs.\n\n"
             "Install GStreamer codecs for H.264/AAC:\n\n"
             "Debian/Ubuntu:\n  sudo apt install gstreamer1.0-libav gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly libqt5multimedia5-plugins\n\n"
-            "Fedora/RHEL:\n  sudo dnf install gstreamer1-plugins-\{good,bad-free,ugly-free\} gstreamer1-libav qt5-qtmultimedia\n\n"
-            "Arch/Manjaro:\n  sudo pacman -S gstreamer gst-plugins-\{base,good,bad,ugly\} gst-libav qt5-multimedia\n\n"
-            "openSUSE:\n  sudo zypper install gstreamer-plugins-\{base,good,bad,ugly\} gstreamer-libav libqt5-qtmultimedia\n"
+            "Fedora/RHEL:\n  sudo dnf install gstreamer1-plugins-{good,bad-free,ugly-free} gstreamer1-libav qt5-qtmultimedia\n\n"
+            "Arch/Manjaro:\n  sudo pacman -S gstreamer gst-plugins-{base,good,bad,ugly} gst-libav qt5-multimedia\n\n"
+            "openSUSE:\n  sudo zypper install gstreamer-plugins-{base,good,bad,ugly} gstreamer-libav libqt5-qtmultimedia\n"
         )
         if extra_detail:
             msg += f"\nDetails: {extra_detail}"
         QMessageBox.warning(self, "Missing Codecs", msg)
+
+    # ----- Controls helpers -----
+    def _set_controls_visible(self, visible: bool):
+        # HBoxLayout is not a widget; toggle individual buttons
+        for w in (self.back_btn, self.play_btn, self.stop_btn, self.fwd_btn,
+                  self.pos_slider, self.time_current, self.time_total,
+                  self.speed_label, self.speed_combo):
+            w.setVisible(visible)
+
+    def _toggle_play(self):
+        state = self.player.state()
+        if state == QMediaPlayer.PlayingState:
+            self.player.pause()
+        else:
+            self.player.play()
+
+    def _sync_play_button(self, state):
+        if state == QMediaPlayer.PlayingState:
+            self.play_btn.setText("Pause")
+            self.play_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
+        else:
+            self.play_btn.setText("Play")
+            self.play_btn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
+
+    def _nudge_position(self, delta_ms: int):
+        try:
+            pos = max(0, self.player.position() + int(delta_ms))
+            dur = self.player.duration() or 0
+            if dur:
+                pos = min(pos, dur)
+            self.player.setPosition(pos)
+        except Exception:
+            pass
+
+    # ----- Timeline handlers -----
+    def _on_duration_changed(self, duration_ms: int):
+        try:
+            self.pos_slider.setRange(0, int(duration_ms or 0))
+            self.time_total.setText(self._format_time(duration_ms))
+        except Exception:
+            pass
+
+    def _on_position_changed(self, position_ms: int):
+        try:
+            if not self._scrubbing:
+                self.pos_slider.setValue(int(position_ms or 0))
+            self.time_current.setText(self._format_time(position_ms))
+        except Exception:
+            pass
+
+    def _on_slider_pressed(self):
+        self._scrubbing = True
+
+    def _on_slider_moved(self, value: int):
+        # Update label during scrubbing for responsive feedback
+        self.time_current.setText(self._format_time(value))
+
+    def _on_slider_released(self):
+        try:
+            value = int(self.pos_slider.value())
+            self.player.setPosition(value)
+        finally:
+            self._scrubbing = False
+
+    def _format_time(self, ms: int) -> str:
+        ms = int(ms or 0)
+        total_seconds = ms // 1000
+        h = total_seconds // 3600
+        m = (total_seconds % 3600) // 60
+        s = total_seconds % 60
+        if h:
+            return f"{h:d}:{m:02d}:{s:02d}"
+        return f"{m:02d}:{s:02d}"
+
+    def _on_speed_changed(self, text: str):
+        try:
+            rate = float(text.replace('x', ''))
+            if hasattr(self.player, 'setPlaybackRate'):
+                self.player.setPlaybackRate(rate)
+        except Exception:
+            pass
 
 
 class _YTDLWorker(QObject):

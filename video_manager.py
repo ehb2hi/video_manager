@@ -439,6 +439,30 @@ class MainWindow(QMainWindow):
 
 
 def main():
+    # Suppress specific noisy Qt warnings (harmless on Wayland/threads)
+    try:
+        rules = os.environ.get("QT_LOGGING_RULES", "")
+        rule = "qt.qpa.wayland.warning=false"
+        if rule not in rules:
+            os.environ["QT_LOGGING_RULES"] = (rules + (";" if rules else "") + rule)
+    except Exception:
+        pass
+
+    # Filter out a known benign runtime warning from Qt
+    try:
+        def _qt_msg_handler(mode, context, msg):
+            s = str(msg)
+            if (
+                "QSocketNotifier: Can only be used with threads started with QThread" in s
+                or "Wayland does not support QWindow::requestActivate()" in s
+            ):
+                return  # ignore these warnings
+            # Fallback to default behavior
+            sys.stderr.write(s + "\n")
+        QtCore.qInstallMessageHandler(_qt_msg_handler)
+    except Exception:
+        pass
+
     app = QApplication(sys.argv)
     # Configure QSettings scope
     QtCore.QCoreApplication.setOrganizationName("BrahimElHamdaoui")
