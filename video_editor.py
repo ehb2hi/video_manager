@@ -1,3 +1,6 @@
+# MIT License
+# Copyright (c) 2024-2025 Brahim El Hamdaoui
+
 import sys
 import os
 import re

@@ -1,3 +1,6 @@
+# MIT License
+# Copyright (c) 2024-2025 Brahim El Hamdaoui
+
 import os
 import sys
 import time
@@ -25,6 +28,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
 
 # Button styling is handled globally via the app theme (QSS)
@@ -387,12 +391,18 @@ class _YouTubeUploadWorker(QObject):
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 try:
-                    creds.refresh(Request())  # type: ignore[name-defined]
+                    creds.refresh(Request())
                 except Exception:
                     creds = None
             if not creds or not creds.valid:
                 flow = InstalledAppFlow.from_client_secrets_file(self.creds_file, SCOPES)
-                creds = flow.run_local_server(port=0)
+                try:
+                    creds = flow.run_local_server(port=0)
+                except Exception as e:
+                    raise Exception(
+                        "Google sign-in was blocked or denied. If you see 'Access blocked: app has not completed the Google verification process', add your Google account as a Test user in Google Cloud Console → APIs & Services → OAuth consent screen, or publish the app.\n"
+                        f"Details: {e}"
+                    )
             # Save the credentials
             with open(token_path, 'w') as token:
                 token.write(creds.to_json())

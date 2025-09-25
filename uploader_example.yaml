@@ -2,7 +2,7 @@
 # Fill these fields and load from the Uploader via "Load YAML…"
 
 # Required
-video: /absolute/path/to/video.mp4
+video: /home/brahim/Documents/video_manager/AHmed_sami/linux/splitet/More on Text Files.mp4
 title: My Awesome Video Title
 description: |
   This is a multiline description.
@@ -16,16 +16,16 @@ tags:
 
 # Either the numeric ID or the category name is accepted
 # Common IDs: 28 = Science & Technology, 10 = Music, 22 = People & Blogs
-category: Science & Technology  # or 28
+category: Education  # or 28
 
 # One of: public, unlisted, private
-privacy: unlisted
+privacy: private
 
 # Path to your Google API OAuth client credentials.json
-creds: /absolute/path/to/credentials.json
+creds: /home/brahim/.client_secret_.google_api.com.json
 
 # Optional thumbnail image path (JPG/PNG/GIF)
-thumbnail: /absolute/path/to/thumbnail.jpg
+thumbnail: /home/brahim/repos/video_manager/icons/icon.png
 
 # Aliases supported (uncomment to use instead of the above canonical keys):
 # video_path: /absolute/path/to/video.mp4

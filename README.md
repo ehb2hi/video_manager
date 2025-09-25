@@ -93,11 +93,17 @@ The script create_deb_package.sh builds a Debian package using PyInstaller. Ensu
 
 License
 
-MIT License. See headers in source files.
+MIT License. See the LICENSE file for details.
 
 Contributing
 
 Issues and PRs are welcome.
+
+Testing
+
+- Install dev deps: `pip install -r dev-requirements.txt` (plus regular requirements).
+- Run tests: `pytest -q`.
+- Tests run Qt in offscreen mode and mock Google APIs; they cover YAML loading, category/privacy selection, and splitter helpers.
 
 YouTube API Setup
 
@@ -105,3 +111,16 @@ YouTube API Setup
 - Create OAuth 2.0 Client Credentials (Desktop App) and download `credentials.json`.
 - In the app’s Uploader, select your `credentials.json`. On first upload, a browser window opens to authorize. A token is saved under `~/.video_manager/youtube_token.json` for reuse.
 - Scope requested: `https://www.googleapis.com/auth/youtube.upload`.
+
+Troubleshooting: OAuth “Access blocked … has not completed the Google verification process” (Error 403)
+
+- Meaning: Your OAuth consent screen is in Testing and the signing-in Google account is not listed as a test user. This is enforced by Google before the app can ask for scopes like `youtube.upload`.
+- Quick fix for personal use:
+  - Open Google Cloud Console → `APIs & Services` → `OAuth consent screen`.
+  - Ensure `User type` is `External` and status is `In testing`.
+  - Add your Google account under `Test users`, save, wait a few minutes, then try again.
+- Important notes:
+  - Use OAuth client type `Desktop` for this app; the code uses a local server redirect to `http://127.0.0.1:<port>`.
+  - In Testing, refresh tokens may expire after 7 days; you may need to re‑authorize periodically. Publishing the app to Production and completing verification removes this limitation.
+  - If you plan to distribute this app broadly, either complete Google’s app verification for `youtube.upload`, or instruct users to create their own Google Cloud project and `credentials.json`.
+  - To force re‑authorization, delete the cached token at `~/.video_manager/youtube_token.json` and try again.
